@@ -65,6 +65,7 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
         {
             moveVertical = 0;
+            Debug.Log("Hello");
         }
     }
     void MoveandRotate()
