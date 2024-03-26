@@ -7,10 +7,10 @@ public class PlayerScript : MonoBehaviour
     private Rigidbody myBody;
     private Animator myAnim;
     private bool isPlayerMoving;
-    private float playerSpeed = 0.5f;
+    private float playerSpeed = 2.5f;
     private float rotationSpeed = 4f;
     private float jumpForce = 3f;
-    private bool canjump;
+    private bool canjump=true;
     private float moveHorizontal, moveVertical;
     private float rotY = 0f;
     public Transform GroundCheck;
@@ -33,6 +33,10 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         PlayerMoveKeyboard();
+        animatePlayer();
+        attack();
+        IsOnGround();
+        Jump();
     }
 
     void FixedUpdate()
@@ -73,7 +77,72 @@ public class PlayerScript : MonoBehaviour
         {
             myBody.MovePosition(transform.position+transform.forward*(moveVertical*playerSpeed));
         }
+        rotY += moveHorizontal * rotationSpeed;
+        myBody.rotation=Quaternion.Euler(0f,rotY,0f);
     }
+
+    void animatePlayer()
+    {
+        if (moveVertical != 0)
+        {
+            if (!isPlayerMoving)
+            {
+                if (!myAnim.GetCurrentAnimatorStateInfo(0).IsName(MyTags.Run_Animation))
+                {
+                    isPlayerMoving = true;
+                    myAnim.SetTrigger(MyTags.Run_Trigger);
+                }
+            }
+        }
+        else
+        {
+            if (isPlayerMoving)
+            {
+                if (myAnim.GetCurrentAnimatorStateInfo(0).IsName(MyTags.Run_Animation))
+                {
+                    isPlayerMoving = false;
+                    myAnim.SetTrigger(MyTags.Stop_Trigger);
+                }
+            }
+        }
+    }
+    void attack()
+    {
+        if(Input.GetKeyDown(KeyCode.K)) 
+        {
+            if (!myAnim.GetCurrentAnimatorStateInfo(0).IsName(MyTags.Attack_Animation)||
+                !myAnim.GetCurrentAnimatorStateInfo(0).IsName(MyTags.Run_Attack_Animation))
+            {
+                myAnim.SetTrigger(MyTags.Attack_Trigger);
+            }
+        }
+    }
+
+    void IsOnGround()
+    {
+        //if we are ground canjump will return true else false
+        canjump = Physics.Raycast(GroundCheck.position, Vector3.down, 1f, GroundLayer);
+        //Debug.Log("this is on ground ");
+    }
+
+    void Jump()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("this is jump or space \n");
+            Debug.Log(canjump);
+            if(canjump)
+            {
+                Debug.Log("This is can jump inside");
+                canjump=false;
+                myBody.MovePosition(transform.position+transform.up*(jumpForce*playerSpeed));
+                myAnim.SetTrigger(MyTags.Jump_Trigger); 
+            }
+        }
+    }
+
+
+
 
 
 
